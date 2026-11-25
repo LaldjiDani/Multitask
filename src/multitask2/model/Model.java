@@ -139,6 +139,9 @@ public final class Model {
   /** Reinitialise la difficulte et le temps pour toutes les games **/
   private void  resetGame() {
 	elapsedTime = 0;
+	for (var slot : slots) {
+		slot.restart();
+	}
   }
 
 

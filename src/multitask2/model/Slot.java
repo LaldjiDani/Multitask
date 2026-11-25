@@ -55,6 +55,10 @@ public final class Slot {
     active = true;
   }
   
+  void restart() {
+	  active = false;
+	  game.reset();
+  }
   
 
   /**

@@ -90,6 +90,13 @@ public final class Avoid implements Game {
     random = new Random();
     super();
   }
+  /** Reinitialise le jeu **/
+  @Override
+  public void reset() {
+	  spawnTimer = 1;
+	  missiles.clear();
+  }
+
 
   /**
    * Traite les changements de rangée, fait apparaître et avance les missiles,
@@ -182,6 +189,7 @@ public final class Avoid implements Game {
     missiles.removeIf(m -> m.x >= WIDTH);
     return true;
   }
+  
 
   /**
    * Retourne la rangée actuellement occupée par le joueur.

@@ -28,6 +28,8 @@ public interface Game {
   boolean update(double dt, Input input, double difficulty);
   
   
+  /** Reinitialise le jeu **/
+  void reset();	
   /**
    * Vérifie les préconditions communes utilisées par les mini-jeux.
    *

@@ -45,6 +45,14 @@ public final class Balance implements Game {
     tilt = 0;
     super();
   }
+  
+  /** Reinitialise le jeu **/
+	  @Override
+  public void reset() {
+	  position = 0;
+	  speed = 0.5;
+	  tilt = 0;
+  }
 
   /**
    * Met à jour les commandes d'inclinaison, la dynamique de la bille et vérifie
