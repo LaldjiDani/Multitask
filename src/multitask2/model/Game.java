@@ -26,7 +26,8 @@ public interface Game {
    *         mini-jeu a échoué
    */
   boolean update(double dt, Input input, double difficulty);
-
+  
+  
   /**
    * Vérifie les préconditions communes utilisées par les mini-jeux.
    *
@@ -47,6 +48,7 @@ public interface Game {
     }
   }
 
+ 
   /**
    * Limite une valeur à l'intervalle symétrique défini par une borne.
    *

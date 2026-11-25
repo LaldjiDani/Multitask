@@ -68,6 +68,48 @@ public final class GeneralView implements View {
     context.renderFrame(graphics -> draw(graphics, model));
   }
 
+  
+  
+
+  /**
+   * Dessine le menu.
+   *
+   * @param graphics surface graphique de l'image en cours
+   */
+  
+  private void renderMenu(Graphics2D graphics) {
+	  graphics.setColor(Color.WHITE);
+	  graphics.setFont(graphics.getFont().deriveFont(Font.BOLD, 40f));
+	  centerText(graphics, "MULTITASK", new Rectangle(0 , 0, width, height / 2));
+
+	  graphics.setFont(graphics.getFont().deriveFont(Font.PLAIN, 20f));
+	  centerText(graphics, "Appuyez sur ESPACE pour jouer", new Rectangle(0, 0, width , height));
+	  centerText(graphics, "Appuyez sur Q pour quitter", new Rectangle(0, 0, width , height + 50));
+	}
+  
+  
+  
+
+  /**
+   * Dessine l'écran de game over avec le score.
+   *
+   * @param graphics surface graphique de l'image en cours
+   * @param model    modèle contenant l'état à dessiner
+   */
+  private void renderGameOver(Graphics2D graphics, Model model) {
+    graphics.setColor(Color.RED);
+    graphics.setFont(graphics.getFont().deriveFont(Font.BOLD, 36f));
+    centerText(graphics, "GAME OVER", new Rectangle(0, 0, width, height / 2));
+
+    graphics.setColor(Color.WHITE);
+    graphics.setFont(graphics.getFont().deriveFont(Font.PLAIN, 24f));
+    var score = (int) (model.time() * 10);
+    centerText(graphics, "Score final : " + score, new Rectangle(0, 0, width, height));
+
+    graphics.setFont(graphics.getFont().deriveFont(Font.PLAIN, 18f));
+    centerText(graphics, "Appuyez sur ECHAP pour revenir au menu", new Rectangle(0, 0, width, height + 80));
+  }
+
   /**
    * Dessine le fond, l'affichage du temps puis la grille des mini-jeux. Les
    * cellules sont réparties sur un nombre de colonnes et de lignes visant une
@@ -76,11 +118,11 @@ public final class GeneralView implements View {
    * @param graphics surface graphique de l'image en cours
    * @param model    modèle contenant l'état à dessiner
    */
-  private void draw(Graphics2D graphics, Model model) {
-    graphics.setColor(BACKGROUND);
-    graphics.fillRect(0, 0, width, height);
-    drawScore(graphics, model);
-
+  private void renderGame(Graphics2D graphics , Model model) {
+	  Objects.requireNonNull(graphics);
+	  Objects.requireNonNull(model);
+	  
+	drawScore(graphics, model);
     var slots = model.slots();
     var n = slots.size();
     if (n > 0) {
@@ -101,6 +143,34 @@ public final class GeneralView implements View {
       }
     }
   }
+ 
+  
+  
+  /**
+   * Dessine le fond, l'affichage du temps puis la grille des mini-jeux. Les
+   * cellules sont réparties sur un nombre de colonnes et de lignes visant une
+   * grille approximativement carrée.
+   *
+   * @param graphics surface graphique de l'image en cours
+   * @param model    modèle contenant l'état à dessiner
+   */
+  private void draw(Graphics2D graphics, Model model) {
+	  
+	Objects.requireNonNull(model);
+	Objects.requireNonNull(graphics);
+	
+	
+	graphics.setColor(BACKGROUND);
+    graphics.fillRect(0, 0, width, height);
+
+    switch(model.state()) {
+        case MENU -> renderMenu(graphics);
+        case PLAY -> renderGame(graphics, model);
+        case GAME_OVER -> renderGameOver(graphics, model);
+    }
+  }
+    
+    
 
   /**
    * Dessine le temps entier écoulé depuis le début de la partie dans la zone

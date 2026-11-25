@@ -1,9 +1,14 @@
 package multitask2.model;
 
+
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.github.forax.zen.KeyboardEvent;
 
 import multitask2.controller.Input;
 
@@ -18,16 +23,23 @@ import multitask2.controller.Input;
  * </p>
  */
 public final class Model {
+	
+  public enum GameState {MENU, PLAY, GAME_OVER}
+
 
   /** Mini-jeux enregistrés, dans leur ordre d'ajout. */
   private final List<Slot> slots;
   /** Temps cumulé depuis le début du modèle, en secondes. */
   private double elapsedTime;
+  
+  /** Etat du jeu **/
+  private GameState state;
 
   /** Crée un modèle vide dont le temps écoulé est nul. */
   public Model() {
     slots = new ArrayList<>();
     elapsedTime = 0;
+    state = GameState.MENU;
     super();
   }
 
@@ -72,20 +84,40 @@ public final class Model {
     }
     Objects.requireNonNull(input);
 
-    elapsedTime += dt;
-    var difficulty = elapsedTime / 5;
+    return switch (state) {
+      case GAME_OVER -> {
+    	  if (input.isKeyJustPressed(KeyboardEvent.Key.ESCAPE)) {
+    		  state = GameState.MENU;
+    	  }
+    	  yield true;
+      }
+      case MENU -> {
+    	  if (input.isKeyJustPressed(KeyboardEvent.Key.SPACE)) {
+    		  IO.println("Lancement du jeu ");
+    		  resetGame();
+    		  state = GameState.PLAY;
+    	  }
+    	  yield !input.isKeyJustPressed(KeyboardEvent.Key.Q);
+      }
+      case PLAY -> {
+        elapsedTime += dt;
+	    var difficulty = elapsedTime / 5;
 
-    for (var slot : slots) {
-      if (!slot.active() && elapsedTime >= slot.activationTime()) {
-        slot.start();
+	    for (var slot : slots) {
+	      if (!slot.active() && elapsedTime >= slot.activationTime()) {
+	        slot.start();
+	      }
+	      if (slot.active()) {
+	        if (!slot.game().update(dt, input, difficulty)) {
+	        	state = GameState.GAME_OVER;
+	        	yield true;
+	        }
+	      }
+	    }
+	    yield true;
+	    
       }
-      if (slot.active()) {
-        if (!slot.game().update(dt, input, difficulty)) {
-          return false;
-        }
-      }
-    }
-    return true;
+    };
   }
 
   /**
@@ -102,6 +134,13 @@ public final class Model {
   public List<Slot> slots() {
     return Collections.unmodifiableList(slots);
   }
+  
+  
+  /** Reinitialise la difficulte et le temps pour toutes les games **/
+  private void  resetGame() {
+	elapsedTime = 0;
+  }
+
 
   /**
    * Retourne le temps de partie écoulé, tronqué à la seconde entière inférieure.
@@ -111,4 +150,13 @@ public final class Model {
   public int time() {
     return (int) elapsedTime;
   }
+
+  public GameState state() {
+	  return state;
+  }
+
 }
+
+
+
+

@@ -94,6 +94,8 @@ public final class Avoid implements Game {
     moveMissiles(dt, difficulty);
     return checkBorder();
   }
+  
+
 
   /**
    * Déplace le joueur d'au plus une rangée en réponse à un nouvel appui sur la

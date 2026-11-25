@@ -54,6 +54,8 @@ public final class Slot {
   void start() {
     active = true;
   }
+  
+  
 
   /**
    * Indique si le mini-jeu a été activé.
