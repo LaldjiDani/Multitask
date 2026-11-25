@@ -33,31 +33,13 @@ public final class Avoid implements Game {
   private static final double BASE_SPAWN_INTERVAL = 1.5;
   
   
-  /** Associe la valeur -1 si le missile va a gauche
-   * et 1 si il va a droite	*/
-  public enum Sens {
-	    LEFT(-1),
-	    RIGHT(1);
-
-	    private final int value;
-
-	    Sens(int value) {
-	        this.value = value;
-	    }
-
-	    public int value() {
-	        return value;
-	    }
-	}
-  
-  
   /**
    * Missile se déplaçant horizontalement sur une rangée fixe.
    *
    * @param x   position horizontale du missile dans les coordonnées du modèle
    * @param row indice de la rangée occupée par le missile
    */
-  public record Missile(double x, int row, Sens sens) {
+  public record Missile(double x, int row, int sens) {
 
     /**
      * Crée un missile déplacé horizontalement, en conservant sa rangée.
@@ -66,7 +48,7 @@ public final class Avoid implements Game {
      * @return nouvelle valeur immuable représentant le missile déplacé
      */
     private Missile move(double dx) {
-      return new Missile(x + dx * sens.value(), row, sens);
+      return new Missile(x + dx * sens, row, sens);
     }
   }
 
@@ -151,10 +133,10 @@ public final class Avoid implements Game {
     if (spawnTimer < 0) {
     	
       // choisie aléatoirement si le missile va a gauche ou a droite
-      Sens sens = random.nextBoolean() ? Sens.RIGHT : Sens.LEFT;
+      int sens = random.nextBoolean() ? 1 : -1;
       
       // si il va a gauche il spawn a droite et inversement
-      double start = (sens == Sens.RIGHT) ? 0.0 : WIDTH;
+      double start = (sens == 1) ? 0.0 : WIDTH;
       
       missiles.add(new Missile(start, random.nextInt(ROWS), sens));
       spawnTimer = spawnInterval;
