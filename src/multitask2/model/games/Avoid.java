@@ -31,14 +31,33 @@ public final class Avoid implements Game {
   private static final double BASE_MISSILE_SPEED = 32;
   /** Intervalle initial entre deux apparitions de missiles, en secondes. */
   private static final double BASE_SPAWN_INTERVAL = 1.5;
+  
+  
+  /** Associe la valeur -1 si le missile va a gauche
+   * et 1 si il va a droite	*/
+  public enum Sens {
+	    LEFT(-1),
+	    RIGHT(1);
 
+	    private final int value;
+
+	    Sens(int value) {
+	        this.value = value;
+	    }
+
+	    public int value() {
+	        return value;
+	    }
+	}
+  
+  
   /**
    * Missile se déplaçant horizontalement sur une rangée fixe.
    *
    * @param x   position horizontale du missile dans les coordonnées du modèle
    * @param row indice de la rangée occupée par le missile
    */
-  public record Missile(double x, int row) {
+  public record Missile(double x, int row, Sens sens) {
 
     /**
      * Crée un missile déplacé horizontalement, en conservant sa rangée.
@@ -46,8 +65,8 @@ public final class Avoid implements Game {
      * @param dx déplacement horizontal à ajouter à la position courante
      * @return nouvelle valeur immuable représentant le missile déplacé
      */
-    private Missile moveRight(double dx) {
-      return new Missile(x + dx, row);
+    private Missile move(double dx) {
+      return new Missile(x + dx * sens.value(), row, sens);
     }
   }
 
@@ -123,7 +142,14 @@ public final class Avoid implements Game {
     var spawnInterval = Math.max(0.45, BASE_SPAWN_INTERVAL - difficulty * 0.15);
     spawnTimer -= dt;
     if (spawnTimer < 0) {
-      missiles.add(new Missile(0.0, random.nextInt(ROWS)));
+    	
+      // choisie aléatoirement si le missile va a gauche ou a droite
+      Sens sens = random.nextBoolean() ? Sens.RIGHT : Sens.LEFT;
+      
+      // si il va a gauche il spawn a droite et inversement
+      double start = (sens == Sens.RIGHT) ? 0.0 : WIDTH;
+      
+      missiles.add(new Missile(start, random.nextInt(ROWS), sens));
       spawnTimer = spawnInterval;
     }
   }
@@ -137,7 +163,7 @@ public final class Avoid implements Game {
    */
   private void moveMissiles(double dt, double difficulty) {
     var missileSpeed = BASE_MISSILE_SPEED + difficulty * 10;
-    missiles.replaceAll(m -> m.moveRight(dt * missileSpeed));
+    missiles.replaceAll(m -> m.move(dt * missileSpeed));
   }
 
   /**
@@ -148,9 +174,11 @@ public final class Avoid implements Game {
    * @return {@code false} si un missile a atteint le joueur ; {@code true} sinon
    */
   private boolean checkBorder() {
-    if (missiles.stream().anyMatch(m -> m.x >= WIDTH && m.row == row)) {
+	  									/* si un missile est dans le rectangle && que les colonnes sont pareil*/
+    if (missiles.stream().anyMatch(m -> (WIDTH/2) - 1.5 < m.x && m.x < (WIDTH/2) + 1.5 && m.row == row)) {
       return false;
     }
+    missiles.removeIf(m -> m.x <= 0.0);
     missiles.removeIf(m -> m.x >= WIDTH);
     return true;
   }
