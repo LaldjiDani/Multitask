@@ -44,7 +44,7 @@ public final class BalanceView implements GameView {
 
     var centerX = area.x + area.width / 2;
     var centerY = area.y + area.height / 2;
-    var halfPlank = area.width / 2 - 15;
+    var halfPlank = area.width / 5 - 15;
 
     var tiltRad = Math.toRadians(balance.tilt());
     var dx = (int) (halfPlank * Math.cos(tiltRad));
@@ -58,10 +58,17 @@ public final class BalanceView implements GameView {
     graphics.setColor(new Color(180, 140, 90));
     graphics.setStroke(new BasicStroke(6));
     graphics.drawLine(leftX, leftY, rightX, rightY);
+    
+    
 
     var t = balance.position() / Balance.TRACK_HALF_LENGTH + 1;
     var ballX = (int) (leftX + t * dx);
     var ballY = (int) (leftY + t * dy);
+    
+    if (balance.isFalling()) {
+        var v = balance.fallCompletion();
+        ballY += (int) (v * (area.height / 3.0));
+    }
 
     graphics.setColor(Color.WHITE);
     graphics.fillOval(ballX - 7, ballY - 15, 14, 14);
